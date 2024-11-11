@@ -47,7 +47,7 @@ mongoose
   .connect(process.env.CONNECTION_STRING, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    dbName: "dj-jeff-database",
+    dbName: "vibesyncdb",
   })
   .then(() => {
     console.log("Database Connection is ready...");

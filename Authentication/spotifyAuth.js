@@ -21,6 +21,12 @@ const spotifyAuthorization = async (req, res) => {
       currentTime: Math.floor(Date.now() / 1000),
     });
   } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: null,
+      data: null,
+      errorMessage: err.message,
+    });
     console.log(err);
   }
 };
