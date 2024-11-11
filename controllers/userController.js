@@ -2,25 +2,36 @@ const { token } = require("morgan");
 const { User } = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { TestSong } = require("../models/testSongModel");
+const { TestSongFeature } = require("../models/testSongFeature");
 
 //Guest User SignUp (without role property)
 const signUp = async (req, res) => {
-  let user = new User({
-    name: req.body.name,
-    email: req.body.email,
-    passwordHash: bcrypt.hashSync(req.body.password, 10),
-    phone: req.body.phone,
-  });
+  try {
+    let user = new User({
+      name: req.body.name,
+      email: req.body.email,
+      passwordHash: bcrypt.hashSync(req.body.password, 10),
+      phone: req.body.phone,
+    });
 
-  user = await user.save();
-  if (!user)
-    return res.status(400).json({
+    user = await user.save();
+    if (!user)
+      return res.status(400).json({
+        success: false,
+        message: null,
+        data: null,
+        errorMessage: "User cannot be created!",
+      });
+    res.send(user);
+  } catch (error) {
+    res.status(500).json({
       success: false,
       message: null,
       data: null,
-      errorMessage: "User cannot be created!",
+      errorMessage: error.message,
     });
-  res.send(user);
+  }
 };
 
 //User Login
@@ -100,6 +111,42 @@ const getCurrentUser = async (req, res) => {
     errorMessage: "User logged in success",
   });
 };
+const testUser = async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+  const secret = process.env.secret;
+
+  if (!user) {
+    return res.status(200).json({
+      success: false,
+      message: null,
+      data: null,
+      errorMessage: "Invalid e-mail/Username",
+    });
+  }
+
+  if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
+    // const testSong = new TestSong({
+    //   // Reference to the User's ObjectId
+    //   requestedTrackId: req.body.requestedtrackId,
+    // });
+    // await testSong.save();
+
+    const testSongs = await TestSong.find().populate("songFeatures");
+    testSongs.forEach((song) => console.log(song.songFeatures[0])); // Populate requestedUser with only the 'name' and 'email' fields
+
+    console.log(testSongs);
+
+    res.status(200).send(testSongs);
+  } else {
+    res.status(200).json({
+      success: false,
+      message: null,
+      data: null,
+      errorMessage: "Invalid Password",
+    });
+  }
+};
+exports.testUser = testUser;
 
 exports.login = login;
 exports.signUp = signUp;

@@ -9,11 +9,13 @@ const {
   login,
   getUsers,
   getCurrentUser,
+  testUser,
 } = require("../controllers/userController");
 const authJwt = require("../Authentication/auth");
 const { validateRole } = require("../Authentication/accessController");
 
 router.post("/login", login);
+router.post("/testUser", testUser);
 router.post("/signup", signUp);
 router.get("/allusers", authJwt(), validateRole(["Admin"]), getUsers);
 router.get("/currentuser", authJwt(), getCurrentUser);
